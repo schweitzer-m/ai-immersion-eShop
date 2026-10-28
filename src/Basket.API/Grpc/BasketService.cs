@@ -24,6 +24,7 @@ public class BasketService(
         }
 
         var data = await repository.GetBasketAsync(userId);
+        logger.LogInformation("Basket {Id} holds {Count} items", userId, basket.Items.Count);
 
         if (data is not null)
         {
