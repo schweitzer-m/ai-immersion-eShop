@@ -4,7 +4,7 @@ public record OrderStatusChangedToPaidIntegrationEvent : IntegrationEvent
 {
     public int OrderId { get; }
     public OrderStatus OrderStatus { get; }
-    public string BuyerName { get; }
+    public string CustomerName { get; }
     public string BuyerIdentityGuid { get; }
     public IEnumerable<OrderStockItem> OrderStockItems { get; }
 
@@ -15,7 +15,7 @@ public record OrderStatusChangedToPaidIntegrationEvent : IntegrationEvent
         OrderId = orderId;
         OrderStockItems = orderStockItems;
         OrderStatus = orderStatus;
-        BuyerName = buyerName;
+        CustomerName = buyerName;
         BuyerIdentityGuid = buyerIdentityGuid;
     }
 }
