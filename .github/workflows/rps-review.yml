@@ -55,7 +55,7 @@ jobs:
       - name: Red Pen Squad review
         uses: ./.rps-framework/ci
         with:
-          copilot-token: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+          copilot-token: ${{ secrets.COPILOT_GITHUB_TOKEN_ESHOP }}
           # Who may accept stop_and_ask gates (/rps proceed) and dismiss findings:
           #   none | maintainer | maintainer-not-author | anyone
           # relax-policy: maintainer-not-author
