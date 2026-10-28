@@ -13,10 +13,17 @@ public static class OrdersApi
         api.MapGet("{orderId:int}", GetOrderAsync);
         api.MapGet("/", GetOrdersByUserAsync);
         api.MapGet("/cardtypes", GetCardTypesAsync);
+        api.MapGet("/stats/pending", GetPendingCountAsync);
         api.MapPost("/draft", CreateOrderDraftAsync);
         api.MapPost("/", CreateOrderAsync);
 
         return api;
+    }
+
+    public static async Task<Ok<int>> GetPendingCountAsync(OrderingContext db)
+    {
+        var count = await db.Orders.CountAsync(o => o.OrderStatus == OrderStatus.Submitted);
+        return TypedResults.Ok(count);
     }
 
     public static async Task<Results<Ok, BadRequest<string>, ProblemHttpResult>> CancelOrderAsync(
