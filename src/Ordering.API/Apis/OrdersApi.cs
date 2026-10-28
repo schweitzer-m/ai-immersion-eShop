@@ -11,12 +11,20 @@ public static class OrdersApi
         api.MapPut("/cancel", CancelOrderAsync);
         api.MapPut("/ship", ShipOrderAsync);
         api.MapGet("{orderId:int}", GetOrderAsync);
+        api.MapGet("{orderId:int}/summary", GetOrderSummaryAsync);
         api.MapGet("/", GetOrdersByUserAsync);
         api.MapGet("/cardtypes", GetCardTypesAsync);
+        api.MapGet("/stats/pending", GetPendingCountAsync);
         api.MapPost("/draft", CreateOrderDraftAsync);
         api.MapPost("/", CreateOrderAsync);
 
         return api;
+    }
+
+    public static async Task<Ok<int>> GetPendingCountAsync(OrderingContext db)
+    {
+        var count = await db.Orders.CountAsync(o => o.OrderStatus == OrderStatus.Submitted);
+        return TypedResults.Ok(count);
     }
 
     public static async Task<Results<Ok, BadRequest<string>, ProblemHttpResult>> CancelOrderAsync(
@@ -83,6 +91,19 @@ public static class OrdersApi
         {
             var order = await services.Queries.GetOrderAsync(orderId);
             return TypedResults.Ok(order);
+        }
+        catch
+        {
+            return TypedResults.NotFound();
+        }
+    }
+
+    public static async Task<Results<Ok<string>, NotFound>> GetOrderSummaryAsync(int orderId, [AsParameters] OrderServices services)
+    {
+        try
+        {
+            var order = await services.Queries.GetOrderAsync(orderId);
+            return TypedResults.Ok($"Order {order.OrderNumber}: {order.Total} for {order.Street}, {order.City}");
         }
         catch
         {

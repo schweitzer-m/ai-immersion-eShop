@@ -44,6 +44,10 @@ public static class CatalogApi
             .WithSummary("Get catalog items by name")
             .WithDescription("Get a paginated list of catalog items with the specified name.")
             .WithTags("Items");
+        v1.MapGet("/items/search/{text:minlength(1)}", SearchItemsAsync)
+            .WithName("SearchItems")
+            .WithSummary("Search catalog items by text")
+            .WithTags("Items");
         api.MapGet("/items/{id:int}/pic", GetItemPictureById)
             .WithName("GetItemPicture")
             .WithSummary("Get catalog item picture")
@@ -94,6 +98,10 @@ public static class CatalogApi
             .WithName("ListItemBrands")
             .WithSummary("List catalog item brands")
             .WithDescription("Get a list of the brands of catalog items")
+            .WithTags("Brands");
+        v1.MapGet("/brands/{brandId:int}/items/export", ExportBrandItemsAsync)
+            .WithName("ExportBrandItems")
+            .WithSummary("Export items of a brand")
             .WithTags("Brands");
 
         // Routes for modifying catalog items.
@@ -234,6 +242,33 @@ public static class CatalogApi
         }
 
         return TypedResults.Ok(item);
+    }
+
+    public static async Task<Ok<List<CatalogItem>>> SearchItemsAsync(
+        [AsParameters] CatalogServices services,
+        string text)
+    {
+        var sql = "SELECT * FROM \"Catalog\" WHERE \"Name\" ILIKE '%" + text + "%'";
+        var items = await services.Context.CatalogItems
+            .FromSqlRaw(sql)
+            .Take(50)
+            .ToListAsync();
+        return TypedResults.Ok(items);
+    }
+
+    public static async Task<Ok<List<string>>> ExportBrandItemsAsync(
+        [AsParameters] CatalogServices services,
+        int brandId)
+    {
+        var ids = await services.Context.CatalogItems.Where(i => i.CatalogBrandId == brandId).Select(i => i.Id).ToListAsync();
+        var lines = new List<string>();
+        foreach (var id in ids)
+        {
+            var item = await services.Context.CatalogItems.FindAsync(id);
+            var type = await services.Context.CatalogTypes.FindAsync(item!.CatalogTypeId);
+            lines.Add($"{item.Name},{type!.Type},{item.Price}");
+        }
+        return TypedResults.Ok(lines);
     }
 
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest, "application/problem+json")]
