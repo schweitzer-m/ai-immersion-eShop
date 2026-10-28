@@ -23,11 +23,11 @@ public class BasketService(
             logger.LogDebug("Begin GetBasketById call from method {Method} for basket id {Id}", context.Method, userId);
         }
 
-        var data = await repository.GetBasketAsync(userId);
+        var basket = await repository.GetBasketAsync(userId);
 
-        if (data is not null)
+        if (basket is not null)
         {
-            return MapToCustomerBasketResponse(data);
+            return MapToCustomerBasketResponse(basket);
         }
 
         return new();
