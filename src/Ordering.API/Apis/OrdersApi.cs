@@ -11,6 +11,7 @@ public static class OrdersApi
         api.MapPut("/cancel", CancelOrderAsync);
         api.MapPut("/ship", ShipOrderAsync);
         api.MapGet("{orderId:int}", GetOrderAsync);
+        api.MapGet("{orderId:int}/summary", GetOrderSummaryAsync);
         api.MapGet("/", GetOrdersByUserAsync);
         api.MapGet("/cardtypes", GetCardTypesAsync);
         api.MapPost("/draft", CreateOrderDraftAsync);
@@ -83,6 +84,19 @@ public static class OrdersApi
         {
             var order = await services.Queries.GetOrderAsync(orderId);
             return TypedResults.Ok(order);
+        }
+        catch
+        {
+            return TypedResults.NotFound();
+        }
+    }
+
+    public static async Task<Results<Ok<string>, NotFound>> GetOrderSummaryAsync(int orderId, [AsParameters] OrderServices services)
+    {
+        try
+        {
+            var order = await services.Queries.GetOrderAsync(orderId);
+            return TypedResults.Ok($"Order {order.OrderNumber}: {order.Total} for {order.Street}, {order.City}");
         }
         catch
         {
