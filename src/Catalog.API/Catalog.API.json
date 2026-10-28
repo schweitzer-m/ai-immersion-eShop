@@ -706,6 +706,53 @@
         }
       }
     },
+    "/api/catalog/items/search/{text}": {
+      "get": {
+        "tags": [
+          "Items"
+        ],
+        "summary": "Search catalog items by text",
+        "operationId": "SearchItems",
+        "parameters": [
+          {
+            "name": "text",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "minLength": 1,
+              "type": "string"
+            }
+          },
+          {
+            "name": "api-version",
+            "in": "query",
+            "description": "The API version, in the format 'major.minor'.",
+            "required": true,
+            "schema": {
+              "enum": [
+                "1.0"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/CatalogItem"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/catalog/items/withsemanticrelevance/{text}": {
       "get": {
         "tags": [
