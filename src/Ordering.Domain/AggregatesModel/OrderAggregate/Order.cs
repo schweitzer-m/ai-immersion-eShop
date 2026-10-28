@@ -79,8 +79,6 @@ public class Order
             {
                 existingOrderForProduct.SetNewDiscount(discount);
             }
-
-            existingOrderForProduct.AddUnits(units);
         }
         else
         {
