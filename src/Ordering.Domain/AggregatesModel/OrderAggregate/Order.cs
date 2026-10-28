@@ -183,4 +183,7 @@ public class Order
     }
 
     public decimal GetTotal() => _orderItems.Sum(o => o.Units * o.UnitPrice);
+
+    /// <summary>Orders of 100 or more qualify for free shipping.</summary>
+    public bool QualifiesForFreeShipping() => GetTotal() > 100m;
 }
