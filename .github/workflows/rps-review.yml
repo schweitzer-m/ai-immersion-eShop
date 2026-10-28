@@ -1,0 +1,67 @@
+name: RPS review
+
+# Red Pen Squad review on every pull request. Installed by the framework's ci/install.py; see ci/README.md there.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  # Human decisions (`/rps proceed`) and questions arrive as comments. Comment events run the copy of this file on the
+  # default branch, so the workflow must be merged there before comments work.
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+concurrency:
+  group: rps-review-${{ github.event.pull_request.number || github.event.issue.number }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  rps-review:
+    # Same-repo, non-draft, non-Dependabot pull requests only (the router checks again for comment events). Secrets are
+    # unavailable to forks, and PR code is untrusted. Comments must be `/rps ...` commands or replies in a thread.
+    if: >-
+      (github.event_name == 'pull_request' &&
+        github.event.pull_request.head.repo.full_name == github.repository &&
+        github.event.pull_request.draft == false &&
+        github.actor != 'dependabot[bot]' &&
+        !startsWith(github.event.pull_request.head.ref, 'dependabot/')) ||
+      (github.event_name == 'issue_comment' && github.event.issue.pull_request &&
+        startsWith(github.event.comment.body, '/rps') && github.event.comment.user.type != 'Bot') ||
+      (github.event_name == 'pull_request_review_comment' &&
+        github.event.pull_request.head.repo.full_name == github.repository &&
+        github.event.comment.in_reply_to_id && github.event.comment.user.type != 'Bot')
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Check out the Red Pen Squad framework
+        uses: actions/checkout@v4
+        with:
+          repository: schweitzer-m/ai-immersion-quality-review-framework
+          ref: main
+          token: ${{ secrets.RPS_FRAMEWORK_TOKEN || github.token }}
+          path: .rps-framework
+          persist-credentials: false
+
+      # Add the toolchain your profile's build and test commands need, for example:
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Red Pen Squad review
+        uses: ./.rps-framework/ci
+        with:
+          copilot-token: ${{ secrets.COPILOT_GITHUB_TOKEN }}
+          # Who may accept stop_and_ask gates (/rps proceed) and dismiss findings:
+          #   none | maintainer | maintainer-not-author | anyone
+          # relax-policy: maintainer-not-author
+          # Who may relax a blocking gate (/rps relax-block <reason>):
+          # relax-block-policy: none
+          # Who may reply to findings, ask questions and request reviews:
+          # discuss-policy: maintainer
+          # fail-on-severity: none
+          # max-ai-credits: ''
