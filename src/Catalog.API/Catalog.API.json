@@ -1250,6 +1250,9 @@
             ],
             "format": "int32"
           },
+          "isLowStock": {
+            "type": "boolean"
+          },
           "maxStockThreshold": {
             "pattern": "^-?(?:0|[1-9]\\d*)$",
             "type": [
