@@ -44,6 +44,10 @@ public static class CatalogApi
             .WithSummary("Get catalog items by name")
             .WithDescription("Get a paginated list of catalog items with the specified name.")
             .WithTags("Items");
+        v1.MapGet("/items/search/{text:minlength(1)}", SearchItemsAsync)
+            .WithName("SearchItems")
+            .WithSummary("Search catalog items by text")
+            .WithTags("Items");
         api.MapGet("/items/{id:int}/pic", GetItemPictureById)
             .WithName("GetItemPicture")
             .WithSummary("Get catalog item picture")
@@ -234,6 +238,18 @@ public static class CatalogApi
         }
 
         return TypedResults.Ok(item);
+    }
+
+    public static async Task<Ok<List<CatalogItem>>> SearchItemsAsync(
+        [AsParameters] CatalogServices services,
+        string text)
+    {
+        var sql = "SELECT * FROM \"Catalog\" WHERE \"Name\" ILIKE '%" + text + "%'";
+        var items = await services.Context.CatalogItems
+            .FromSqlRaw(sql)
+            .Take(50)
+            .ToListAsync();
+        return TypedResults.Ok(items);
     }
 
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest, "application/problem+json")]
