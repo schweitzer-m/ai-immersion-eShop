@@ -20,7 +20,7 @@ public class OrderItem
 
     protected OrderItem() { }
 
-    public OrderItem(int productId, string productName, decimal unitPrice, decimal discount, string pictureUrl, int units = 1)
+    public OrderItem(int productId, string productName, decimal unitPrice, decimal discount, string imageUrl, int units = 1)
     {
         if (units <= 0)
         {
@@ -38,7 +38,7 @@ public class OrderItem
         UnitPrice = unitPrice;
         Discount = discount;
         Units = units;
-        PictureUrl = pictureUrl;
+        PictureUrl = imageUrl;
     }
     
     public void SetNewDiscount(decimal discount)
