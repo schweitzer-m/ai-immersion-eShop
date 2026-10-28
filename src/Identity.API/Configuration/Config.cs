@@ -2,6 +2,8 @@
 {
     public class Config
     {
+        // Resource, scope and client definitions for the identity server
+
         // ApiResources define the apis in your system
         public static IEnumerable<ApiResource> GetApis()
         {
