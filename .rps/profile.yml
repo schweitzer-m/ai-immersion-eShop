@@ -1,0 +1,26 @@
+# .rps/profile.yml: the Red Pen Squad profile for this repo.
+# CI reads it from the BASE branch of each pull request, never from the PR, so a PR cannot change its own review rules.
+# Commands are argument arrays. Anything you cannot or will not run in CI is the string "unavailable".
+# `high_risk_paths` and `mandatory_checks` are your decisions; the defaults below are deliberately empty.
+schema_version: 1
+repo: ai-immersion-eShop
+repo_path: repos/ai-immersion-eShop
+languages: [csharp, javascript]
+frameworks: []
+commands:
+  build: ["dotnet", "build", "eShop.Web.slnf"]
+  test: ["dotnet", "test", "--project", "tests/Ordering.UnitTests"]
+  lint: unavailable
+optional_tools:
+  semgrep: {configured: false}
+  gitleaks: {configured: false}
+  trivy: {configured: false}
+  sonar: {configured: false}
+docs:
+  readme: README.md
+  architecture: unavailable
+  confluence: unavailable
+high_risk_paths: ["src/Identity.API/*", "src/Ordering.Domain/AggregatesModel/OrderAggregate/Order.cs"]
+mandatory_checks: [build, test]
+reference_repos: []
+requirements_source: null
